@@ -1,184 +1,182 @@
 <!DOCTYPE html>
-<html>
+<html lang="" >
 <head>
-    <title>Place Autocomplete</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/readable/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js" type="application/javascript"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5YOIGMNw8Nwx63haUaDpHza0PDdz3r1Y&v=3.exp&sensor=true&amp;libraries=places"></script>
+
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
         #map {
-            height: 100%;
+            width: 100%;
+            height: 610px;
+            margin-top:10px;
         }
-        .controls {
-            margin-top: 10px;
-            border: 1px solid transparent;
-            border-radius: 2px 0 0 2px;
-            box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            height: 32px;
-            outline: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        .form-control{
+            border-radius:8px;
         }
-
-        #origin-input,
-        #destination-input {
-            background-color: #fff;
-            font-family: Roboto;
-            font-size: 15px;
-            font-weight: 300;
-            margin-left: 12px;
-            padding: 0 11px 0 13px;
-            text-overflow: ellipsis;
-            width: 200px;
+        .weatherDetails{
+            font-family: Microsoft sans-serif;
+            font-size:14px;
         }
-
-        #origin-input:focus,
-        #destination-input:focus {
-            border-color: #4d90fe;
+        .navbar{
+            background-repeat: no-repeat;
+            background-size:cover;
+        }
+        .navbar-brand{
+            color:white;
+            padding-left:42%;
+            font-family: Microsoft sans-serif;
+            font-size:35px;
+        }
+        .form-group{
+            margin-bottom:-12px;
         }
 
-        #mode-selector {
-            color: #fff;
-            background-color: #4d90fe;
-            margin-left: 12px;
-            padding: 5px 11px 0px 11px;
+        .glyphicon-off{
+            font-size:13px;
         }
-
-        #mode-selector label {
-            font-family: Roboto;
-            font-size: 13px;
-            font-weight: 300;
-        }
-
     </style>
 </head>
+
 <body>
-<input id="origin-input" class="controls" type="text"
-       placeholder="Enter an origin location">
-
-<input id="destination-input" class="controls" type="text"
-       placeholder="Enter a destination location">
-
-<div id="mode-selector" class="controls">
-    <input type="radio" name="type" id="changemode-walking" checked="checked">
-    <label for="changemode-walking">Walking</label>
-
-    <input type="radio" name="type" id="changemode-transit">
-    <label for="changemode-transit">Transit</label>
-
-    <input type="radio" name="type" id="changemode-driving">
-    <label for="changemode-driving">Driving</label>
+<!--
+<nav class="navbar navbar-light bg-faded">
+    <h1 class="navbar-brand m-b-0">Welcome
+    </h1>
+    <a href="Login.html" class="btn btn-link" id="logout">Logout
+        <span >
+                <i class="glyphicon glyphicon-off"></i>
+            </span></a>
+</nav>-->
+<div class="geo" data-ng-app="geolocation" ng-controller="googlemapoutput">
+    <form>
+        <div class="form-group">
+            <div class="col-xs-3">
+                <input class="form-control" id="origin_Location" type="text">
+            </div>
+            <div class="col-xs-3">
+                <input class="form-control" id="destination_Location" type="text">
+            </div>
+        </div>
+        <button type="submit" ng-click="route()" class="btn btn-primary">Click for directions and weatherDetails</button>
+    </form>
+    <div id="map">
+</div>
 </div>
 
-<div id="map"></div>
-
 <script>
-    // This example requires the Places library. Include the libraries=places
-    // parameter when you first load the API. For example:
-    // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+    angular.module('geolocation', [])
+            .controller('googlemapoutput', function ($scope,$http) {
 
-    function initMap() {
-        var origin_place_id = null;
-        var destination_place_id = null;
-        var travel_mode = 'WALKING';
-        var map = new google.maps.Map(document.getElementById('map'), {
-            mapTypeControl: false,
-            center: {lat: -33.8688, lng: 151.2195},
-            zoom: 13
-        });
-        var directionsService = new google.maps.DirectionsService;
-        var directionsDisplay = new google.maps.DirectionsRenderer;
-        directionsDisplay.setMap(map);
+                var map;
+                var mapOptions;
+                var directionsDisplay = new google.maps.DirectionsRenderer({
+                    draggable: true
+                });
+                var directionResponse;
+                var directionsService = new google.maps.DirectionsService();
 
-        var origin_input = document.getElementById('origin-input');
-        var destination_input = document.getElementById('destination-input');
-        var modes = document.getElementById('mode-selector');
+                var options = {
+                    types: ['(cities)'],
+                    componentRestrictions: {country: "us"}
+                };
 
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(origin_input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(destination_input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(modes);
+                var origin_Location = document.getElementById('origin_Location');
+                var origin_LocationAutocomplete = new google.maps.places.Autocomplete(origin_Location, options);
 
-        var origin_autocomplete = new google.maps.places.Autocomplete(origin_input);
-        origin_autocomplete.bindTo('bounds', map);
-        var destination_autocomplete =
-                new google.maps.places.Autocomplete(destination_input);
-        destination_autocomplete.bindTo('bounds', map);
+                var destination_Location = document.getElementById('destination_Location');
+                var destination_LocationAutocomplete = new google.maps.places.Autocomplete(destination_Location, options);
 
-        // Sets a listener on a radio button to change the filter type on Places
-        // Autocomplete.
-        function setupClickListener(id, mode) {
-            var radioButton = document.getElementById(id);
-            radioButton.addEventListener('click', function() {
-                travel_mode = mode;
+                $scope.initialize = function () {
+                    var pos = new google.maps.LatLng(0, 0);
+                    var mapOptions = {
+                        zoom: 3,
+                        center: pos
+                    };
+
+                    map = new google.maps.Map(document.getElementById('map'),
+                            mapOptions);
+                };
+                $scope.route = function () {
+                    var markerStart,markerEnd;
+                    var infowindowStart = new google.maps.InfoWindow();
+                    var infowindowEnd = new google.maps.InfoWindow();
+                    if(markerStart!=null)
+                        markerStart.setMap(null);
+                    if(markerEnd!=null)
+                        markerEnd.setMap(null);
+                    if(infowindowStart!=null)
+                        infowindowStart.close();
+                    if(infowindowEnd!=null)
+                        infowindowEnd.close();
+                    var end = document.getElementById('destination_Location').value;
+                    var start = document.getElementById('origin_Location').value;
+
+                    var request = {
+                        origin: start,
+                        destination: end,
+                        travelMode: google.maps.TravelMode.DRIVING
+                    };
+
+                    directionsService.route(request, function (response, status) {
+                        directionResponse=response;
+                        if (status == google.maps.DirectionsStatus.OK) {
+                            directionsDisplay.setMap(map);
+                            directionsDisplay.setDirections(response);
+                        }
+
+                    });
+                    var origin_LocationWeatherUrl="https://api.wunderground.com/api/36b799dc821d5836/conditions/q/"+start+".json";
+                    var destination_LocationWeatherUrl="https://api.wunderground.com/api/36b799dc821d5836/conditions/q/"+end+".json";
+                    $http.get(origin_LocationWeatherUrl).success(function(data) {
+                        if(data.current_observation==null){
+                            origin_LocationWeatherUrl="https://api.wunderground.com/api/36b799dc821d5836/conditions"+data.response.results[0].l+".json";
+                            $http.get(origin_LocationWeatherUrl).success(function(data) {
+                                markerStart=new google.maps.Marker({
+                                    map:map
+                                });
+                                markerStart.setPosition(directionResponse.routes[0].legs[0].start_location);
+                                infowindowStart.setContent('<h4>Weather Details</h4><p class="weatherDetails"> Temperature is '+data.current_observation.temp_f+' F and '+data.current_observation.weather+'<img src="'+data.current_observation.icon_url+'"/></p>');
+                                infowindowStart.open(map,markerStart);
+                            });
+                        }
+                        else{
+                            markerStart=new google.maps.Marker({
+                                map:map
+                            });
+                            markerStart.setPosition(directionResponse.routes[0].legs[0].start_location);
+                            infowindowStart.setContent('<h4>Weather Details</h4><p class="weatherDetails"> Temperature is '+data.current_observation.temp_f+' F and '+data.current_observation.weather+'<img src="'+data.current_observation.icon_url+'"/></p>');
+                            infowindowStart.open(map,markerStart);
+                        }
+                    });
+                    $http.get(destination_LocationWeatherUrl).success(function(data) {
+                        if(data.current_observation==null){
+                            destination_LocationWeatherUrl="https://api.wunderground.com/api/36b799dc821d5836/conditions"+data.response.results[0].l+".json";
+                            $http.get(destination_LocationWeatherUrl).success(function(data) {
+                                markerEnd=new google.maps.Marker({
+                                    map:map
+                                });
+                                markerEnd.setPosition(directionResponse.routes[0].legs[0].end_location);
+                                infowindowEnd.setContent('<h4>Weather Details</h4><p class="weatherDetails"> Temperature is '+data.current_observation.temp_f+' and '+data.current_observation.weather+'<img src="'+data.current_observation.icon_url+'"/></p>');
+                                infowindowEnd.open(map,markerEnd);
+                            });
+                        }
+                        else{
+                            markerEnd=new google.maps.Marker({
+                                map:map
+                            });
+                            markerEnd.setPosition(directionResponse.routes[0].legs[0].end_location);
+                            infowindowEnd.setContent('<h4>Weather Details</h4><p class="weatherDetails"> Temperature is '+data.current_observation.temp_f+'F and '+data.current_observation.weather+'<img src="'+data.current_observation.icon_url+'"/></p>');
+                            infowindowEnd.open(map,markerEnd);
+                        }
+                    });
+                };
+
+                google.maps.event.addDomListener(window, 'load', $scope.initialize);
+
             });
-        }
-        setupClickListener('changemode-walking', 'WALKING');
-        setupClickListener('changemode-transit', 'TRANSIT');
-        setupClickListener('changemode-driving', 'DRIVING');
-
-        function expandViewportToFitPlace(map, place) {
-            if (place.geometry.viewport) {
-                map.fitBounds(place.geometry.viewport);
-            } else {
-                map.setCenter(place.geometry.location);
-                map.setZoom(17);
-            }
-        }
-
-        origin_autocomplete.addListener('place_changed', function() {
-            var place = origin_autocomplete.getPlace();
-            if (!place.geometry) {
-                window.alert("Autocomplete's returned place contains no geometry");
-                return;
-            }
-            expandViewportToFitPlace(map, place);
-
-            // If the place has a geometry, store its place ID and route if we have
-            // the other place ID
-            origin_place_id = place.place_id;
-            route(origin_place_id, destination_place_id, travel_mode,
-                    directionsService, directionsDisplay);
-        });
-
-        destination_autocomplete.addListener('place_changed', function() {
-            var place = destination_autocomplete.getPlace();
-            if (!place.geometry) {
-                window.alert("Autocomplete's returned place contains no geometry");
-                return;
-            }
-            expandViewportToFitPlace(map, place);
-
-            // If the place has a geometry, store its place ID and route if we have
-            // the other place ID
-            destination_place_id = place.place_id;
-            route(origin_place_id, destination_place_id, travel_mode,
-                    directionsService, directionsDisplay);
-        });
-
-        function route(origin_place_id, destination_place_id, travel_mode,
-                       directionsService, directionsDisplay) {
-            if (!origin_place_id || !destination_place_id) {
-                return;
-            }
-            directionsService.route({
-                origin: {'placeId': origin_place_id},
-                destination: {'placeId': destination_place_id},
-                travelMode: travel_mode
-            }, function(response, status) {
-                if (status === 'OK') {
-                    directionsDisplay.setDirections(response);
-                } else {
-                    window.alert('Directions request failed due to ' + status);
-                }
-            });
-        }
-    }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9ApI10dj4V3EVPgUxd6hIy5qtC8TpEiQ&libraries=places&callback=initMap"
-        async defer></script>
 </body>
 </html>
