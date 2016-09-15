@@ -1,48 +1,22 @@
 <!DOCTYPE html>
-<html >
+<html lang="en" xmlns:fb="http://www.facebook.com/2008/fbml">
   <head>
     <meta charset="UTF-8">
     <title>Custom Login Form</title>
-      <!--
-     <meta name="google-signin-client_id" content="677872146708-0vn8iv03h8v6a13shjlrqb56v44rfnb5.apps.googleusercontent.com">
-   <script src="js/vendor/Facebook.js"></script>-->
-      <!--adding google script-->
       <script src="https://apis.google.com/js/platform.js" async defer></script>
         <link rel="stylesheet" href="css/style.css">
       <script src="facebook.js"></script>
-      <script src="google.js"></script>
-    
-    
-    
+
   </head>
 
   <body>
-
     <div id="wrapper">
 	<div class="join">Join Today</div>
     	<div class="lock"></div>
 	        <div class="clr"></div>
     	    	<div class="login-options">Choose on of the following sign up methods.</div>
-                	<!--<a class="twitter" href="#">Twitter</a>-->
-        <!--
-        <a class="facebook"  href="#">Facebook</a>
-        -->
-
         <fb:login-button scope="public_profile,email" onlogin="checkLoginState();" size="xlarge" font-size='30px'>
         </fb:login-button>
-        <!--
-                 <a class="google" onclick="window.location.href" href="#">Google+</a>
-                 -->
-        <!--
-        <br>
-        <br>
-
-        <div>
-        <a href="#" class="google" onclick="login()" ><i class="fa fa-google"></i> Google</a></div>
-
-        <div class="g-signin2" data-onsuccess="onSignIn"></div>
-        -->
-
                     <div class="clr"><hr /></div>
                     		<div class="mail-text">Or sign up using your email address.</div>
                             		<div class="forms">
@@ -55,15 +29,5 @@
 						<a class="create-acc" href="#">Create My Account</a>
 </div>
 <div class="footer">PSD by <a href="http://365psd.com/day/4-123/" target="_blank">Justin Nurse</a></div>
-
-  <script>
-      function onSignIn(googleUser) {
-          var profile = googleUser.getBasicProfile();
-          console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-          console.log('Name: ' + profile.getName());
-          console.log('Image URL: ' + profile.getImageUrl());
-          console.log('Email: ' + profile.getEmail());
-      }
-  </script>
   </body>
 </html>

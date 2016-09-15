@@ -11,7 +11,7 @@ function getBarCodeDataFunction(){
         url:barCodeUrl,
         success:function(response){
             var image='';
-            image+="<label id='imageLabel'>Image</label><img src='"+url+"' id='barCodeImage'>";
+            image+="<label id='imageLabel' size='10'>Image</label><img src='"+url+"' id='barCodeImage'>";
             document.getElementById("image").innerHTML=image;
             var table='';
             table+="<label id='tableLabel'>Barcode Details</label>";

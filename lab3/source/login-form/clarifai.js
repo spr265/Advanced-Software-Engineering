@@ -68,7 +68,7 @@ function parseResponse(resp) {
         console.log('Sorry, something is wrong.');
     }
 
-    document.getElementById('tags').innerHTML = tags.toString().replace(/,/g, ', ');
+    document.getElementById('tags').innerHTML = tags.toString().replace(/,/g, ' <br>');
     return tags;
 }
 

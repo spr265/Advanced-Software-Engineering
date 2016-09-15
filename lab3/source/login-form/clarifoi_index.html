@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Clarifai JavaScript Starter</title>
-
+    <title>Image Tag</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="text/javascript" src="keys.js"></script>
     <script type="text/javascript" src="clarifai.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div>
-    <input type="text" id="imgurl" placeholder="Image URL"/>
-    <button onclick="run(document.getElementById('imgurl').value)">Get tags!</button>
-</div>
+<div id="wrapper">
+        <div class="join">Enter Image URL for tags<br><br></div>
+    <div>
+    <input type="text" id="imgurl" placeholder="Image URL" size="70"/>
+    <button onclick="run(document.getElementById('imgurl').value)" size="30"> Get tags!</button>
+       <br>
+        <br>
+        </div>
 <div id="tags"></div>
+</div>
 </body>
 </html>
